@@ -10,6 +10,7 @@
 {%  endblock title %}
 
 {% block content %}
+<a href="{% url 'quizes:add-quiz-view' %}" class="btn btn-success">Create a New Quiz</a>
 <!-- Modal -->
 <div class="modal fade" id="quizStartModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -36,10 +37,10 @@
 <hr>
 
 {% for object in object_list %}
-<div class="m-3">
+<div class="mb-3">
 
     <button type="button" class="btn btn-link modal-button" data-pk="{{object.pk}}" data-date="{{object.date}}"
-        data-name="{{object.name}}" data-description="{{object.description}}" data-topic="{{object.topic.name}}"
+        data-name="{{object.name}}" data-description="{{object.description}}" data-topic="{{object.topic}}"
         data-questions="{{object.number_of_questions}}" data-difficulty="{{object.difficulty}}"
         data-time="{{object.time}}" data-pass="{{object.required_score}}" data-bs-toggle="modal"
         data-bs-target="#quizStartModal">

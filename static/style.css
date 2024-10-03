@@ -1,3 +1,18 @@
-.not-visible {
-    display: none;
+/*.not-visible {*/
+/*    display: none;*/
+/*}*/
+html, body {
+	font-family: "Contrail One", sans-serif;
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	width: 100%;
+	color: #444;
+}
+
+.row {
+    display: flex;
+    justify-content: center; /* Центрирование по горизонтали */
+    align-items: center; /* Центрирование по вертикали */
+    height: 100vh;
 }

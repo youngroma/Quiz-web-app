@@ -1,10 +1,14 @@
 console.log('hilo')
 const url = window.location.href
-
 const quizBox = document.getElementById('quiz-box')
 const scoreBox = document.getElementById('score-box')
 const resultBox = document.getElementById('result-box')
 const timerBox = document.getElementById('timer-box')
+
+const backButton = document.getElementById('back-button')
+    backButton.addEventListener('click', ()=>{
+        window.location.href = '/'
+    })
 
 const activateTimer = (time) => {
     if (time.toString().length < 2) {
