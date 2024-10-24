@@ -56,9 +56,9 @@ const activateTimer = (time) => {
 
 $.ajax({
     type: 'GET',
-    url: `${url}data`,
+    url: `${url}data/`,
     success: function (response) {
-        // console.log(response)
+        console.log(response)
         const data = response.data
         data.forEach(el => {
             for (const [question, answers] of Object.entries(el)){
@@ -103,64 +103,64 @@ const sendData = () => {
         }
     })
 
-      $.ajax({
-              type: 'POST',
-              url: `${url}save/`,
-              data: data,
-              success: function (response) {
-                  // console.log(response)
-                  const n_correct_answers = response.score
-                  const results = response.results
-                  const score = response.score.toFixed(2)
-                  const passed = response.passed
-                  console.log(results)
-                  quizForm.classList.add('not-visible')
+   $.ajax({
+    type: 'POST',
+    url: `${url}save/`,
+    data: data,
+    success: function(response){
+        const results = response.results
+        const n_correct_answers = response.score
+        const score = response.score.toFixed(2)
+        const passed = response.passed
 
-                  quizForm.remove()
+        // Removes the form
+        quizForm.remove()
 
-                  scoreBox.innerHTML += `
-                               <p> ${passed ? 'Congrats you passed the test!' : 'Sorry, you did not pass the test!'} Your result is ${score} %</p>
-                               <p> Answered correctly: ${n_correct_answers}%</p>
-                               `
-
-                  results.forEach(res=> {
-                      const resDiv = document.createElement("div")
-                      for (const [question, resp] of Object.entries(res)) {
-                          // console.log(question)
-                          // console.log(resp)
-                          // console.log('*****')
-                          resDiv.innerHTML += question
-                          const classes = ['container', 'p-3', 'text-light', 'h4']
-                          resDiv.classList.add(...classes)
-
-                          if (resp == 'not answered') {
-                              resDiv.innerHTML += ' — Not answered'
-                              resDiv.classList.add('bg-danger')
-                          } else {
-                              const answer = resp['answered']
-                              const correct = resp['correct_answer']
-
-                               if (answer == correct){
-                            resDiv.classList.add('bg-success')
-                            resDiv.innerHTML += ` Answered: ${answer}`
-                        } else {
-                                   resDiv.classList.add('bg-danger')
-                                   resDiv.innerHTML += `| Answered: ${answer}`
-                                   resDiv.innerHTML += `| Correct answer: ${correct}`
-                               }
-                          }
-                      }
-                      // const body = document.getElementsByTagName('BODY')[0]
-                      resultBox.append(resDiv)
-                  })
+        let scoreDiv = document.createElement('div')
+        // scoreDiv.classList.add(...['container', 'my-auto', 'text-secondary'])
 
 
-              },
-              error: function (error) {
-                  console.log(error)
-              },
-          }
-      )}
+        scoreDiv.innerHTML += `
+                           <p> ${passed ? 'Congrats you passed the test!' : 'Sorry, you did not pass the test!'} Your result is ${score} %</p>
+                           <p> Answered correctly: ${n_correct_answers}</p>
+                           `
+
+        scoreBox.append(scoreDiv)
+
+        results.forEach(res =>{
+            let resDiv = document.createElement('div')
+
+            for (const [question, resp] of Object.entries(res)){
+                resDiv.innerHTML += question
+
+                const classes = ['container', 'p-3', 'text-light', 'h4']
+                resDiv.classList.add(...classes)
+
+                if (resp == 'not answered'){
+                    resDiv.innerHTML += ' — Not answered'
+                    resDiv.classList.add('bg-danger')
+                } else{
+                    const answer = resp['answered']
+                    const correct = resp['correct_answer']
+
+                    if (answer == correct){
+                        resDiv.classList.add('bg-success')
+                        resDiv.innerHTML += ` Answered: ${answer}`
+                    } else {
+                        resDiv.classList.add('bg-danger')
+                        resDiv.innerHTML += `| Answered: ${answer}`
+                        resDiv.innerHTML += `| Correct answer: ${correct}`
+                    }
+                }
+            }
+            resultBox.append(resDiv)
+        })
+    },
+    error: function(error){
+        console.log(error)
+    }
+})
+}
 
 quizForm.addEventListener('submit', e=> {
     e.preventDefault()

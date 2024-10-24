@@ -1,14 +1,16 @@
 from django.forms import modelformset_factory
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-
 from .forms import QuizForm, AnswerFormSet, QuestionFormSet, QuestionForm
 from results.models import Result
 from .models import Quiz
 from django.views.generic import ListView, CreateView
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from questions.models import Question, Answer
-from results.models import Result
+from .utils import DataMixin
+from django.shortcuts import render, redirect
+
+
 
 
 # Create your views here.
@@ -18,69 +20,108 @@ class QuizListView(ListView):
     template_name = 'quizes/main.html'
 
 
-from django.shortcuts import render, redirect
-from .forms import QuizForm, QuestionFormSet
-from .models import Quiz
+class create_quiz_view(DataMixin, CreateView):
+    form_class = QuizForm
+    template_name = 'quizes/add_quiz.html'
 
+    def get_success_url(self):
+        # Get ID of created viewer
+        return reverse_lazy('quizes:add-question-view', kwargs={'pk': self.object.pk})
 
-def create_quiz_view(request):
-    if request.method == 'POST':
-        quiz_form = QuizForm(request.POST)
+    def form_valid(self, form):
+        self.object = form.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title="Добавить вопросы")
+
+        # Get the ID of the viewer from the URL
+        pk = self.kwargs.get('pk')
+        questions = Question.objects.filter(quiz_id=pk)
+        question_formset = QuestionFormSet(prefix='questions', queryset=questions)
+
+        # Add formset to context
+        context['question_formset'] = question_formset
+        return {**context, **c_def}
+
+class create_question_view(DataMixin, CreateView):
+    template_name = 'quizes/add_question.html'
+    success_url = reverse_lazy('quizes:main-view')
+
+    def get(self, request, pk):
+        quiz = get_object_or_404(Quiz, pk=pk)
+        question_formset = QuestionFormSet(queryset=Question.objects.none(), prefix='questions')  # Empty queryset
+        answer_formsets = [AnswerFormSet(queryset=Answer.objects.none(), prefix=f'answers-{i}') for i in range(question_formset.total_form_count())]  # Empty queryset
+
+        context = {
+            'question_formset': question_formset,
+            'answer_formsets': answer_formsets,
+            'quiz': quiz,
+            'title': "Add questions"
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, pk):
         question_formset = QuestionFormSet(request.POST, prefix='questions')
+        answer_formsets = [AnswerFormSet(request.POST, prefix=f'answers-{i}') for i in range(question_formset.total_form_count())]
 
-        if quiz_form.is_valid() and question_formset.is_valid():
-            quiz = quiz_form.save()  # Сохраните квиз
+        if question_formset.is_valid() and all(af.is_valid() for af in answer_formsets):
+            for question_form, answer_formset in zip(question_formset, answer_formsets):
+                question = question_form.save(commit=False)
+                question.quiz_id = pk
+                question.save()
 
-            questions = question_formset.save(commit=False)  # Не сохраняйте сразу
-            for question in questions:
-                question.quiz = quiz  # Связываем вопрос с квизом
-                question.save()  # Сохраняем вопрос
+                for answer_form in answer_formset:
+                    answer = answer_form.save(commit=False)
+                    answer.question = question  # We link the answer to the question
+                    answer.save()
 
-                # Здесь вы должны также сохранить ответы, если они существуют
-                answers = question_formset.cleaned_data  # Получаем данные ответов
-                for answer_data in question_formset.cleaned_data:
-                    if answer_data.get('answers'):  # Проверяем, что ответы существуют
-                        for answer in answer_data['answers']:
-                            if answer.get('text'):  # Проверяем, что текст ответа не пустой
-                                Answer.objects.create(
-                                    question=question,
-                                    text=answer['text'],
-                                    is_correct=answer.get('is_correct', False)  # Убедитесь, что поле корректно
-                                )
+            return redirect(self.success_url)
 
-            return redirect('/')  # Перенаправление на главную страницу
-        else:
-            # Если форма невалидна, отобразите ошибки
-            print(quiz_form.errors)  # Отладка: вывод ошибок формы
-            print(question_formset.errors)  # Отладка: вывод ошибок формы вопросов
-    else:
-        quiz_form = QuizForm()
-        question_formset = QuestionFormSet(prefix='questions')
+        # If forms are not valid, return them to the template
+        context = {
+            'question_formset': question_formset,
+            'answer_formsets': answer_formsets,
+            'title': "Добавить вопросы"
+        }
+        return render(request, self.template_name, context)
 
-    return render(request, 'quizes/add_quiz.html', {
-        'quiz_form': quiz_form,
-        'question_formset': question_formset,
-    })
 
 
 
 def quiz_view(request, pk):
+    if pk == 'favicon.ico':
+        return HttpResponse(status=204)
     quiz = Quiz.objects.get(pk=pk)
     return render(request, 'quizes/quiz.html', {'obj': quiz})
 
 
 def quiz_data_view(request, pk):
-    quiz = Quiz.objects.get(pk=pk)
-    questions = []
-    for q in quiz.get_guestions():
-        answers = []
-        for a in q.get_answers():
-            answers.append(a.text)
-        questions.append({str(q): answers})
-    return JsonResponse({
-        'data': questions,
-        'time': quiz.time,
-    })
+    try:
+        quiz = Quiz.objects.get(pk=pk)
+        questions = []
+
+        # Debug messages
+        print(f'Quiz: {quiz.title}, Time: {quiz.time}')
+
+        # Get all questions quiz
+        quiz_questions = quiz.questions.all()
+        print(f'Questions Count: {quiz_questions.count()}')
+
+        for question in quiz_questions:
+            answers = [answer.answer_text for answer in question.answers.all()]
+            print(f'Question: {question.question_text}, Answers: {answers}')
+            questions.append({str(question.question_text): answers})
+
+        return JsonResponse({
+            'data': questions,
+            'time': quiz.time
+        })
+    except Quiz.DoesNotExist:
+        return JsonResponse({'error': 'Quiz not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 def save_quiz_view(request, pk):
@@ -93,7 +134,7 @@ def save_quiz_view(request, pk):
 
         for k in data_.keys():
             print('key: ', k)
-            question = Question.objects.get(text=k)
+            question = Question.objects.get(question_text=k)
             questions.append(question)
         print(questions)
 
@@ -106,19 +147,19 @@ def save_quiz_view(request, pk):
         results = []
 
         for q in questions:
-            a_selected = data[q.text]
+            a_selected = data[q.question_text]
 
             if a_selected != '':
-                correct_answer = Answer.objects.filter(question=q).get(correct=True)
-                if a_selected == correct_answer.text:
+                correct_answer = Answer.objects.filter(question=q).get(is_correct=True)
+                if a_selected == correct_answer.answer_text:
                     score += 1
 
-                results.append({q.text: {
-                    'correct_answer': correct_answer.text,
+                results.append({q.question_text: {
+                    'correct_answer': correct_answer.answer_text,
                     'answered': a_selected
                 }})
             else:
-                results.append({q.text: 'not answered'})
+                results.append({q.qustion_text: 'not answered'})
 
         final_score = score * multiplier
 

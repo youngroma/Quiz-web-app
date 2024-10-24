@@ -9,20 +9,21 @@ DIFF_CHOICES = (
 
 
 class Quiz(models.Model):
-    name = models.CharField(max_length=120)
-    topic = models.CharField(max_length=120)
-    number_of_questions = models.IntegerField()
+    title = models.CharField(max_length=255, help_text="Title of the quiz", blank=True)
+    description = models.TextField(help_text="Description of the quiz", blank=True, null=True)
     time = models.IntegerField(help_text="Duration of the quiz in minutes")
     required_score = models.DecimalField(help_text="Score needed to pass the quiz in %", decimal_places=2, max_digits=6)
-    difficulty = models.CharField(max_length=6,choices=DIFF_CHOICES)
+    difficulty = models.CharField(max_length=6, choices=DIFF_CHOICES, help_text="Difficulty level of the quiz")
+
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name}-{self.topic}"
+        return self.title
 
-    def get_guestions(self):
-        questions = list(self.question_set.all())
-        random.shuffle(questions)
-        return questions[:self.number_of_questions]  # Relationship with model
+    @property
+    def get_questions(self):
+        return self.questions.all()
 
     class Meta:
         verbose_name_plural = 'Quizes'

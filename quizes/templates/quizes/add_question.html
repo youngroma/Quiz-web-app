@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+
+{% block content %}
+    <h1>Add question</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ question_formset.management_form }}
+
+        {% for question_form, answer_formset in question_formset|zip_lists:answer_formsets %}
+            <div class="form-group">
+                <h3>Question {{ forloop.counter }}</h3>
+                {{ question_form.as_p }}
+
+                {% if question_form.errors %}
+                    <div class="text-danger">
+                        {{ question_form.errors }}
+                    </div>
+                {% endif %}
+
+
+                {{ answer_formset.management_form }}
+
+                {% for answer_form in answer_formset %}
+                    <h4>Answer {{ forloop.counter }}</h4>
+                    <div class="form-group">
+                        {{ answer_form.as_p }}
+
+                        {% if answer_form.errors %}
+                            <div class="text-danger">
+                                {{ answer_form.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <hr>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+{% endblock %}

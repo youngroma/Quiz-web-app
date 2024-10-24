@@ -1,125 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Create a New Quiz</h2>
+    <div class="container">
+        <h2>Create a New Quiz</h2>
 
-    <form method="POST" id="quiz-form">
-        {% csrf_token %}
+        <!-- Form for creating the quiz -->
+        <form action="{% url 'quizes:add-quiz-view' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
 
-
-        <!-- Основная форма для викторины -->
-        {{ quiz_form.as_p }}
-
-        <h3>Questions</h3>
-        <div id="questions-container">
-            <!-- Первоначально загружается только одна форма для вопросов и ответов -->
-            <div class="question-block">
-                <h4>Question 1</h4>
-                <label for="question-0">Question Text</label>
-                <input type="text" name="questions[0][text]" id="question-0" class="form-control" required>
-
-                <h5>Answers</h5>
-                <div class="answers-container">
-                    <!-- Ответ 1 -->
-                    <label for="answer-0-0">Answer 1</label>
-                    <input type="text" name="questions[0][answers][0][text]" id="answer-0-0" class="form-control" required>
-                    <input type="checkbox" name="questions[0][answers][0][is_correct]" id="answer-0-0-correct">
-                    <label for="answer-0-0-correct">Correct</label>
+            <!-- Main form for the quiz -->
+            <div class="form-error">{{ form.non_field_errors }}</div>
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                    {{ field }}
+                    <div class="form-error">{{ field.errors }}</div>
                 </div>
-                <button type="button" class="btn btn-secondary add-answer">Add Answer</button>
-            </div>
-        </div>
-
-        <button type="button" id="add-question" class="btn btn-secondary">Add Question</button>
-        <button type="submit" class="btn btn-primary">Create Quiz</button>
-    </form>
-
-    {% if quiz_form.errors %}
-    <div class="alert alert-danger">
-        <ul>
-            {% for field in quiz_form %}
-                {% for error in field.errors %}
-                    <li>{{ field.label }}: {{ error }}</li>
-                {% endfor %}
             {% endfor %}
-            {% for error in quiz_form.non_field_errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
+
+            <button type="submit" class="btn btn-primary">Create Quiz</button>
+        </form>
     </div>
-{% endif %}
-
-{% if question_formset.errors %}
-    <div class="alert alert-danger">
-        <ul>
-            {% for form in question_formset %}
-                {% for error in form.errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            {% endfor %}
-        </ul>
-    </div>
-{% endif %}
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const questionContainer = document.getElementById('questions-container');
-            let questionCount = 1; // Счетчик вопросов
-            const maxAnswers = 8;  // Максимум ответов на вопрос
-
-             // Добавление нового вопроса
-            document.getElementById('add-question').addEventListener('click', function() {
-                const newQuestionBlock = document.createElement('div');
-                newQuestionBlock.classList.add('question-block');
-                newQuestionBlock.innerHTML = `
-                    <h4>Question ${questionCount + 1}</h4>
-                    <label for="question-${questionCount}">Question Text</label>
-                    <input type="text" name="questions[${questionCount}][text]" id="question-${questionCount}" class="form-control" required>
-
-                    <h5>Answers</h5>
-                    <div class="answers-container">
-                        <!-- Ответ 1 для нового вопроса -->
-                        <label for="answer-${questionCount}-0">Answer 1</label>
-                        <input type="text" name="questions[${questionCount}][answers][0][text]" id="answer-${questionCount}-0" class="form-control" required>
-                        <input type="checkbox" name="questions[${questionCount}][answers][0][is_correct]" id="answer-${questionCount}-0-correct">
-                        <label for="answer-${questionCount}-0-correct">Correct</label>
-                    </div>
-                    <button type="button" class="btn btn-secondary add-answer">Add Answer</button>
-                `;
-                questionContainer.appendChild(newQuestionBlock);
-                questionCount++; // Увеличиваем счетчик вопросов
-
-                // После добавления вопроса добавляем обработчик для кнопки "Add Answer"
-                attachAddAnswerEvent(newQuestionBlock);
-            });
-
-            // Функция для добавления новых ответов
-            function attachAddAnswerEvent(questionBlock) {
-                const addAnswerButton = questionBlock.querySelector('.add-answer');
-                let answerCount = 1; // Счетчик для каждого вопроса начинается с 1
-
-                addAnswerButton.addEventListener('click', function() {
-                    const answersContainer = questionBlock.querySelector('.answers-container');
-
-                    // Проверяем, сколько уже ответов добавлено
-                    if (answerCount < maxAnswers) {
-                        const newAnswer = document.createElement('div');
-                        newAnswer.innerHTML = `
-                            <label for="answer-${questionCount - 1}-${answerCount}">Answer ${answerCount + 1}</label>
-                            <input type="text" name="questions[${questionCount - 1}][answers][${answerCount}][text]" id="answer-${questionCount - 1}-${answerCount}" class="form-control" required>
-                            <input type="checkbox" name="questions[${questionCount - 1}][answers][${answerCount}][is_correct]" id="answer-${questionCount - 1}-${answerCount}-correct">
-                            <label for="answer-${questionCount - 1}-${answerCount}-correct">Correct</label>
-                        `;
-                        answersContainer.appendChild(newAnswer);
-                        answerCount++; // Увеличиваем счетчик ответов
-                    } else {
-                        alert('You can only add up to 8 answers per question.');
-                    }
-                });
-            }
-
-            // Инициализируем событие добавления ответа для первой формы вопроса
-            attachAddAnswerEvent(document.querySelector('.question-block'));
-        });
-    </script>
 {% endblock %}

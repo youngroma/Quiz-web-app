@@ -40,11 +40,11 @@
 <div class="mb-3">
 
     <button type="button" class="btn btn-link modal-button" data-pk="{{object.pk}}" data-date="{{object.date}}"
-        data-name="{{object.name}}" data-description="{{object.description}}" data-topic="{{object.topic}}"
+        data-name="{{object.title}}" data-description="{{object.description}}" data-topic="{{object.topic}}"
         data-questions="{{object.number_of_questions}}" data-difficulty="{{object.difficulty}}"
         data-time="{{object.time}}" data-pass="{{object.required_score}}" data-bs-toggle="modal"
         data-bs-target="#quizStartModal">
-        {{object.name}}
+        {{object.title}}
     </button>
 </div>
     {% endfor %}
