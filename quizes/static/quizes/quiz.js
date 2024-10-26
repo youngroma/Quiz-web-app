@@ -92,7 +92,7 @@ const sendData = () => {
 
     const elements = [...document.getElementsByClassName('ans')]
     const data = {}
-    data['csrfmiddlewaretoken'] = csrf[0].value
+    data['csrfmiddlewaretoken'] = csrf[0].value;
     elements.forEach(el => {
         if (el.checked) {
             data[el.name] = el.value
@@ -112,6 +112,8 @@ const sendData = () => {
         const n_correct_answers = response.score
         const score = response.score.toFixed(2)
         const passed = response.passed
+        console.log("Response:", response);
+        window.location.href = response.redirect_url;
 
         // Removes the form
         quizForm.remove()

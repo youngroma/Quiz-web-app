@@ -21,6 +21,8 @@
     </div>
 
 {#    <a href="{% url 'quizes:main-view' %}" class="btn btn-danger">back</a>#}
+
+
 <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#quizBackModal">
   Back
 </button>
@@ -45,10 +47,10 @@
     <div id="quiz-box" class="">
     </div>
     <div class="text-center py-3">
-        <button type="submit" class="mt-4 btn btn-primary btn-lg">Send</button>
+        <button onclick="sendData()" type="button" class="mt-4 btn btn-primary btn-lg">Send</button>
     </div>
 </form>
 
     <div id="score-box"></div>
-    <div id="result-box"></div>
+{#    <div id="result-box"></div>#}
 {% endblock content %}

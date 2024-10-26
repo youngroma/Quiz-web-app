@@ -1,14 +1,13 @@
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from .forms import QuizForm, AnswerFormSet, QuestionFormSet, QuestionForm
 from results.models import Result
 from .models import Quiz
 from django.views.generic import ListView, CreateView
 from django.http import JsonResponse, HttpResponse
-from questions.models import Question, Answer
+from questions.models import Question, Answer, UserAnswer
 from .utils import DataMixin
-from django.shortcuts import render, redirect
 
 
 
@@ -132,49 +131,88 @@ def save_quiz_view(request, pk):
 
         data_.pop('csrfmiddlewaretoken')
 
-        for k in data_.keys():
-            print('key: ', k)
-            question = Question.objects.get(question_text=k)
-            questions.append(question)
-        print(questions)
-
         user = request.user
         quiz = Quiz.objects.get(pk=pk)
 
         required_score = quiz.required_score
         score = 0
-        multiplier = 100 / len(questions)
+        multiplier = 100 / len(data_)
         results = []
 
-        for q in questions:
-            a_selected = data[q.question_text]
+        result = Result.objects.create(quiz=quiz, user=user, score=0)  # score will be updated later
 
-            if a_selected != '':
-                correct_answer = Answer.objects.filter(question=q).get(is_correct=True)
-                if a_selected == correct_answer.answer_text:
-                    score += 1
+        for question_text, answer_text in data_.items():
+            question = Question.objects.get(question_text=question_text)
+            correct_answer = Answer.objects.filter(question=question, is_correct=True).first()
+            selected_answer = Answer.objects.filter(question=question, answer_text=answer_text[0]).first() if answer_text else None
 
-                results.append({q.question_text: {
-                    'correct_answer': correct_answer.answer_text,
-                    'answered': a_selected
-                }})
-            else:
-                results.append({q.qustion_text: 'not answered'})
+            # Save user response in UserAnswer
+            UserAnswer.objects.create(result=result, question=question, selected_answer=selected_answer)
+
+            if selected_answer and selected_answer == correct_answer:
+                score += 1
+            results.append({
+                'question': question.question_text,
+                'answered': selected_answer.answer_text if selected_answer else 'Not answered',
+                'correct_answer': correct_answer.answer_text
+            })
 
         final_score = score * multiplier
-
-        Result.objects.create(quiz=quiz, user=user, score=final_score)
+        result.score = final_score
+        result.save()
 
         json_response = {
+            'redirect_url': reverse('quizes:quiz-results', kwargs={'pk': pk}),
             'score': final_score,
             'correct_questions': score,
-            'passed': False,
+            'passed': final_score >= required_score,
             'required_score': required_score,
             'results': results
         }
-
+        print(json_response['redirect_url'])
         if final_score >= required_score:
             json_response['passed'] = True
             return JsonResponse(json_response)
 
         return JsonResponse(json_response)
+
+
+# Измените вьюху
+def quiz_results_view(request, pk):
+    quiz = get_object_or_404(Quiz, pk=pk)
+
+    results = Result.objects.filter(quiz=quiz, user=request.user)
+
+    # Check if there are results
+    if not results.exists():
+        return render(request, 'quizes/quiz_results.html', {'error': 'No results found.'})
+
+    # Get the last result
+    result = results.last()
+
+    questions = quiz.questions.prefetch_related('answers')
+
+    user_answers = []
+
+    for question in questions:
+        try:
+            user_answer = UserAnswer.objects.get(result=result, question=question)
+            selected_answer = user_answer.selected_answer  # Is the object of the response
+        except UserAnswer.DoesNotExist:
+            selected_answer = None
+
+        user_answers.append({
+            'question_text': question.question_text,
+            'answers': question.answers.all(),
+            'selected_answer': selected_answer,
+            'correct_answer': question.answers.filter(is_correct=True).first(),
+        })
+
+    context = {
+        'quiz': quiz,
+        'score': result.score,
+        'user_answers': user_answers,
+    }
+    return render(request, 'quizes/quiz_results.html', context)
+
+
