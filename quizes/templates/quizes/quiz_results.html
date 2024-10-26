@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Results for {{ quiz.title }}</h1>
+    <p>Your Score: {{ score }}%</p>
+     <button onclick="window.location.href='{% url 'quizes:quiz-view' quiz.pk %}'" type="button" class="btn btn-outline-info">Try Again</button>
+
+    {% for answer in user_answers %}
+        <div class="question-container">
+            <h3>Question: {{ answer.question_text }}</h3>
+            <ul>
+                {% for ans in answer.answers %}
+                    <li class="{% if ans.is_correct %}bg-success{% elif ans == answer.selected_answer %}bg-danger{% endif %}">
+                        {{ ans.answer_text }}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <p><b>Your Answer:</b>
+                {% if answer.selected_answer %}
+                    {{ answer.selected_answer.answer_text }}
+                {% else %}
+                    Not Answered
+                {% endif %}
+            </p>
+
+            <p><b>Correct Answer:</b>
+                {% if answer.correct_answer %}
+                    {{ answer.correct_answer.answer_text }}
+                {% else %}
+                    No correct answer available
+                {% endif %}
+            </p>
+            <hr>
+        </div>
+    {% endfor %}
+{% endblock %}
