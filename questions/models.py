@@ -30,8 +30,8 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    answer_text = models.TextField(help_text="Text of the answer", max_length=255, null=True, blank=True)
-    is_correct = models.BooleanField(default=False, help_text="Is this answer correct?")
+    answer_text = models.TextField(max_length=255, null=True, blank=True)
+    is_correct = models.BooleanField(default=False)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)

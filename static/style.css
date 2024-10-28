@@ -10,9 +10,40 @@ html, body {
 	color: #444;
 }
 
+.logo {
+	background: url('quizes/static/images/logo.png') no-repeat 10px 5px;
+	width: 70px;
+	height: 60px;
+}
+
 /*.row {*/
 /*    display: flex;*/
 /*    justify-content: center;
 /*    align-items: center;
 /*    height: 100vh;*/
 /*}*/
+
+.header {
+	background-color: darkslategrey;
+}
+
+ul.mainmenu {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	height: 60px;
+	font-size: 20px;
+	overflow: hidden;
+}
+ul.mainmenu li {
+	float: left;
+	margin: 18px 40px 0 30px;
+}
+
+.blurred-text {
+    font-size: 24px;
+    color: black;
+    filter: blur(50px);
+}
+
+

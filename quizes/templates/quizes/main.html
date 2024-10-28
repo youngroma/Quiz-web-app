@@ -10,7 +10,7 @@
 {%  endblock title %}
 
 {% block content %}
-<a href="{% url 'quizes:add-quiz-view' %}" class="btn btn-success">Create a New Quiz</a>
+
 <!-- Modal -->
 <div class="modal fade" id="quizStartModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -22,7 +22,13 @@
       <div class="modal-body" id="modal-body-confirm"></div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
-        <button type="button" id="start-button" class="btn btn-success">yes</button>
+          {% if user.is_authenticated %}
+                      <button type="button" id="start-button" class="btn btn-success">yes</button>
+              {% else %}
+               <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Log in before start quiz">
+                  <button class="btn btn-success" style="pointer-events: none;" type="button" disabled>Yes</button>
+                </span>
+          {% endif %}
       </div>
     </div>
   </div>

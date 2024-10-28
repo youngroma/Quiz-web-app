@@ -1,4 +1,7 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.models import User
+
 from .models import Quiz
 from questions.models import Question, Answer
 from django.forms import inlineformset_factory, modelformset_factory
@@ -71,4 +74,20 @@ AnswerFormSet = inlineformset_factory(Question, Answer, form=AnswerForm, extra=2
     #     if required_score > 101:
     #         raise ValidationError('100% is max value')
     #     return required_score
+
+
+class RegisterUserForm(UserCreationForm):
+    username = forms.CharField(label='Login', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-input'}))
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+    password2 = forms.CharField(label='Password again', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')
+
+class LoginUserForm(AuthenticationForm):
+    username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+
 

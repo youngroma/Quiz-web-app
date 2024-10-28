@@ -28,6 +28,28 @@
     </head>
 
     <body>
+
+    {% block mainmenu %}
+		<div class="header">
+			<ul id="mainmenu" class="mainmenu">
+			<li class="logo"><a href="{% url 'quizes:main-view' %}"><div class="logo"></div></a></li>
+
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'quizes:add-quiz-view' %}" class="btn btn-success">Create a New Quiz</a></li>
+                {% endif %}
+
+				{% if request.user.is_authenticated %}
+				<li class="last"> {{user.username}} | <a href="{% url 'quizes:logout' %}">Log out</a></li>
+				{% else %}
+				<li class="last"><a href="{% url 'quizes:register' %}">Sign up</a> | <a href="{% url 'quizes:login' %}">Log in</a></li>
+				{% endif %}
+
+			</ul>
+			<div class="clear"></div>
+		</div>
+{% endblock mainmenu %}
+
+
         <div class="container mt-3">
             {% block content %}
             {% endblock content %}
