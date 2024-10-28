@@ -3,7 +3,7 @@ console.log("hello")
 const modalButtons = [...document.getElementsByClassName('modal-button')]
 const modalBody = document.getElementById('modal-body-confirm')
 const startButton = document.getElementById('start-button')
-const url = window.location.href
+const url = "quiz/"
 
 
 modalButtons.forEach(Button => Button.addEventListener('click', ()=> {
@@ -21,7 +21,7 @@ modalButtons.forEach(Button => Button.addEventListener('click', ()=> {
         <div class="mb-3">
             <h5>Are you sure you want to begin "<b>${name}</b>"</h5>
         </div>
-        
+
         <div class="text-muted">
             <p>${description}</p>
             <ul>
@@ -31,10 +31,10 @@ modalButtons.forEach(Button => Button.addEventListener('click', ()=> {
                 <li>Number of questions: <b>${numQuestions}</b></li>
                 <li>Time available: <b>${time} minutes</b></li>
                 <li>Score needed to pass: <b>${scoreToPass} %</b></li>
-            </ul> 
+            </ul>
         </div>
-    
-    `
+        `
+
     startButton.addEventListener('click', ()=>{
         window.location.href = url + pk // Takes the user to the detail view
     })
