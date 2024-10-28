@@ -3,10 +3,22 @@
 
 
 {% block content %}
+
+    <div class="quiz-details">
+        <ul>
+            <h2> {{ quiz.title }} </h2>
+            <h2> Description: {{ quiz.description }} </h2>
+            <h2>Time: {{ quiz.time }}</h2>
+            <h2>Required Score: {{ quiz.time }}</h2>
+            <h2>Difficulty: {{ quiz.difficulty }}</h2>
+        </ul>
+    </div>
+
     <h1>Add question</h1>
     <form method="post">
         {% csrf_token %}
         {{ question_formset.management_form }}
+
 
         {% for question_form, answer_formset in question_formset|zip_lists:answer_formsets %}
             <div class="form-group">
@@ -24,8 +36,10 @@
 
                 {% for answer_form in answer_formset %}
                     <h4>Answer {{ forloop.counter }}</h4>
+
                     <div class="form-group">
                         {{ answer_form.as_p }}
+
 
                         {% if answer_form.errors %}
                             <div class="text-danger">

@@ -1,14 +1,17 @@
+from django.contrib.auth import login, logout
+from django.contrib.auth.views import LoginView
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
-from .forms import QuizForm, AnswerFormSet, QuestionFormSet, QuestionForm
+from .forms import QuizForm, AnswerFormSet, QuestionFormSet, QuestionForm, LoginUserForm, RegisterUserForm
 from results.models import Result
 from .models import Quiz
 from django.views.generic import ListView, CreateView
 from django.http import JsonResponse, HttpResponse
 from questions.models import Question, Answer, UserAnswer
 from .utils import DataMixin
-
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
 
 
 
@@ -33,7 +36,7 @@ class create_quiz_view(DataMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        c_def = self.get_user_context(title="Добавить вопросы")
+        c_def = self.get_user_context(title="Add questions")
 
         # Get the ID of the viewer from the URL
         pk = self.kwargs.get('pk')
@@ -90,8 +93,6 @@ class create_question_view(DataMixin, CreateView):
 
 
 def quiz_view(request, pk):
-    if pk == 'favicon.ico':
-        return HttpResponse(status=204)
     quiz = Quiz.objects.get(pk=pk)
     return render(request, 'quizes/quiz.html', {'obj': quiz})
 
@@ -177,7 +178,7 @@ def save_quiz_view(request, pk):
         return JsonResponse(json_response)
 
 
-# Измените вьюху
+
 def quiz_results_view(request, pk):
     quiz = get_object_or_404(Quiz, pk=pk)
 
@@ -215,4 +216,20 @@ def quiz_results_view(request, pk):
     }
     return render(request, 'quizes/quiz_results.html', context)
 
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Авторизация пользователя после регистрации
+            messages.success(request, "You successfully registered.")
+            return redirect('quizes:main-view')  # Перенаправление после регистрации
+    else:
+        form = UserCreationForm()
+    return render(request, 'quizes/register.html', {'form': form})
+
+def logout_user(request):
+    logout(request)
+    return redirect('quizes:login')
 
