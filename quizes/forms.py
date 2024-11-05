@@ -29,6 +29,9 @@ class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields =  ['question_text', 'question_type']
+        widgets = {
+            'question_text': forms.TextInput(attrs={'class': 'form-input'}),
+        }
 
     def clean_question_text(self):
         text = self.cleaned_data.get('question_text')
@@ -47,22 +50,22 @@ class AnswerForm(forms.ModelForm):
         return text
 
 
-QuestionFormSet = modelformset_factory(Question, form=QuestionForm, extra=1)
-AnswerFormSet = inlineformset_factory(Question, Answer, form=AnswerForm, extra=2, can_delete=True)
+QuestionFormSet = modelformset_factory(Question, form=QuestionForm, extra=12)
+AnswerFormSet = inlineformset_factory(Question, Answer, form=AnswerForm, extra=8, can_delete=True)
 
 
 
 
 
 
-        # widgets = {
-        #     'name': forms.TextInput(attrs={'class': 'form-input'}),
-        #     'topic': forms.TextInput(attrs={'class': 'form-input'}),
-        #     'number_of_questions': forms.IntegerField(attrs={'class': 'form-input'}),
-        #     'time': forms.IntegerField(attrs={'class': 'form-input'}),
-        #     'required_score': forms.IntegerField(attrs={'class': 'form-input'}),
-        #
-        # }
+    #     widgets = {
+    #         'name': forms.TextInput(attrs={'class': 'form-input'}),
+    #         'topic': forms.TextInput(attrs={'class': 'form-input'}),
+    #         'number_of_questions': forms.IntegerField(attrs={'class': 'form-input'}),
+    #         'time': forms.IntegerField(attrs={'class': 'form-input'}),
+    #         'required_score': forms.IntegerField(attrs={'class': 'form-input'}),
+    #
+    #     }
     # def clean_title(self):
     #     name = self.cleaned_data['name']
     #     if len(name > 64):
@@ -76,18 +79,6 @@ AnswerFormSet = inlineformset_factory(Question, Answer, form=AnswerForm, extra=2
     #     return required_score
 
 
-class RegisterUserForm(UserCreationForm):
-    username = forms.CharField(label='Login', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-input'}))
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
-    password2 = forms.CharField(label='Password again', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
 
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'password1', 'password2')
-
-class LoginUserForm(AuthenticationForm):
-    username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
 
 
