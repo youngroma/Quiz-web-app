@@ -3,7 +3,7 @@ from django.contrib.auth.views import LoginView
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
-from .forms import QuizForm, AnswerFormSet, QuestionFormSet, QuestionForm, LoginUserForm, RegisterUserForm
+from .forms import QuizForm, AnswerFormSet, QuestionFormSet, QuestionForm
 from results.models import Result
 from .models import Quiz
 from django.views.generic import ListView, CreateView
@@ -27,7 +27,6 @@ class create_quiz_view(DataMixin, CreateView):
     template_name = 'quizes/add_quiz.html'
 
     def get_success_url(self):
-        # Get ID of created viewer
         return reverse_lazy('quizes:add-question-view', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
@@ -38,14 +37,13 @@ class create_quiz_view(DataMixin, CreateView):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title="Add questions")
 
-        # Get the ID of the viewer from the URL
         pk = self.kwargs.get('pk')
         questions = Question.objects.filter(quiz_id=pk)
         question_formset = QuestionFormSet(prefix='questions', queryset=questions)
 
-        # Add formset to context
         context['question_formset'] = question_formset
         return {**context, **c_def}
+
 
 class create_question_view(DataMixin, CreateView):
     template_name = 'quizes/add_question.html'
@@ -53,8 +51,8 @@ class create_question_view(DataMixin, CreateView):
 
     def get(self, request, pk):
         quiz = get_object_or_404(Quiz, pk=pk)
-        question_formset = QuestionFormSet(queryset=Question.objects.none(), prefix='questions')  # Empty queryset
-        answer_formsets = [AnswerFormSet(queryset=Answer.objects.none(), prefix=f'answers-{i}') for i in range(question_formset.total_form_count())]  # Empty queryset
+        question_formset = QuestionFormSet(queryset=Question.objects.none(), prefix='questions')
+        answer_formsets = [AnswerFormSet(queryset=Answer.objects.none(), prefix=f'answers-{i}') for i in range(question_formset.total_form_count())]
 
         context = {
             'question_formset': question_formset,
@@ -69,23 +67,27 @@ class create_question_view(DataMixin, CreateView):
         answer_formsets = [AnswerFormSet(request.POST, prefix=f'answers-{i}') for i in range(question_formset.total_form_count())]
 
         if question_formset.is_valid() and all(af.is_valid() for af in answer_formsets):
+            # save only non-empty forms
             for question_form, answer_formset in zip(question_formset, answer_formsets):
-                question = question_form.save(commit=False)
-                question.quiz_id = pk
-                question.save()
+                if question_form.cleaned_data and not question_form.cleaned_data.get("DELETE"):
+                    question = question_form.save(commit=False)
+                    question.quiz_id = pk
+                    question.save()
 
-                for answer_form in answer_formset:
-                    answer = answer_form.save(commit=False)
-                    answer.question = question  # We link the answer to the question
-                    answer.save()
+                    #save non-empty forms
+                    for answer_form in answer_formset:
+                        if answer_form.cleaned_data and not answer_form.cleaned_data.get("DELETE"):
+                            answer = answer_form.save(commit=False)
+                            answer.question = question  # link the answer to the question
+                            answer.save()
 
             return redirect(self.success_url)
 
-        # If forms are not valid, return them to the template
+        # If the forms are invalid, we return them in the template
         context = {
             'question_formset': question_formset,
             'answer_formsets': answer_formsets,
-            'title': "Добавить вопросы"
+            'title': "Add questions"
         }
         return render(request, self.template_name, context)
 
@@ -143,7 +145,7 @@ def save_quiz_view(request, pk):
         result = Result.objects.create(quiz=quiz, user=user, score=0)  # score will be updated later
 
         for question_text, answer_text in data_.items():
-            question = Question.objects.get(question_text=question_text)
+            question = Question.objects.filter(quiz=quiz, question_text=question_text).first()
             correct_answer = Answer.objects.filter(question=question, is_correct=True).first()
             selected_answer = Answer.objects.filter(question=question, answer_text=answer_text[0]).first() if answer_text else None
 
