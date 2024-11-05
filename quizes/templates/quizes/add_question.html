@@ -1,57 +1,135 @@
 {% extends "base.html" %}
 {% load custom_filters %}
 
-
 {% block content %}
 
-    <div class="quiz-details">
-        <ul>
-            <h2> {{ quiz.title }} </h2>
-            <h2> Description: {{ quiz.description }} </h2>
-            <h2>Time: {{ quiz.time }}</h2>
-            <h2>Required Score: {{ quiz.time }}</h2>
-            <h2>Difficulty: {{ quiz.difficulty }}</h2>
-        </ul>
-    </div>
+<div class="quiz-details">
+    <ul>
+        <h2>{{ quiz.title }}</h2>
+        <h2>Description: {{ quiz.description }}</h2>
+        <h2>Time: {{ quiz.time }}</h2>
+        <h2>Required Score: {{ quiz.required_score }}</h2>
+        <h2>Difficulty: {{ quiz.difficulty }}</h2>
+    </ul>
+</div>
 
-    <h1>Add question</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ question_formset.management_form }}
+<h1>Add Questions and Answers</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ question_formset.management_form }}
 
-
+    <div id="questions-container">
         {% for question_form, answer_formset in question_formset|zip_lists:answer_formsets %}
-            <div class="form-group">
+            <div class="form-group question-block" style="display: {% if forloop.counter <= 2 %}block{% else %}none{% endif %};">
                 <h3>Question {{ forloop.counter }}</h3>
                 {{ question_form.as_p }}
 
+                    <button type="button" class="btn btn-danger remove-question-btn">Remove Question</button>
                 {% if question_form.errors %}
-                    <div class="text-danger">
-                        {{ question_form.errors }}
-                    </div>
+                    <div class="text-danger">{{ question_form.errors }}</div>
                 {% endif %}
 
-
                 {{ answer_formset.management_form }}
+                <div class="answers-container">
+                    {% for answer_form in answer_formset %}
+                        <div class="form-group answer-block" style="display: {% if forloop.parentloop.counter <= 2 and forloop.counter <= 2 %}block{% else %}none{% endif %};">
+                            <h4>Answer {{ forloop.counter }}</h4>
+                            {{ answer_form.answer_text.label_tag }}
+                            {{ answer_form.answer_text }}
+                            {{ answer_form.is_correct.label_tag }}
+                            {{ answer_form.is_correct }}
 
-                {% for answer_form in answer_formset %}
-                    <h4>Answer {{ forloop.counter }}</h4>
-
-                    <div class="form-group">
-                        {{ answer_form.as_p }}
-
-
-                        {% if answer_form.errors %}
-                            <div class="text-danger">
-                                {{ answer_form.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                            {% if answer_form.errors %}
+                                <div class="text-danger">{{ answer_form.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-primary add-answer-btn">Add Answer</button>
             </div>
-            <hr>
         {% endfor %}
+    </div>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-    </form>
+    <button type="button" id="add-question-btn" class="btn btn-primary">Add Question</button>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const totalQuestions = {{ question_formset.total_form_count }};
+    let currentQuestionIndex = 0;
+
+    // Show the first question form when "Add Question" button is clicked
+    document.getElementById("add-question-btn").addEventListener("click", function() {
+        const questionBlocks = document.querySelectorAll(".question-block");
+        if (currentQuestionIndex < totalQuestions) {
+            const questionBlock = questionBlocks[currentQuestionIndex];
+            questionBlock.style.display = "block";
+
+            // Show the first two answer blocks for this new question
+            const answerBlocks = questionBlock.querySelectorAll(".answer-block");
+            for (let i = 0; i < 2 && i < answerBlocks.length; i++) {
+                answerBlocks[i].style.display = "block";
+            }
+
+            currentQuestionIndex++;
+        }
+    });
+
+    // Add answer functionality for each question
+    document.querySelectorAll(".add-answer-btn").forEach((button) => {
+        let currentAnswerIndex = 2;
+        button.addEventListener("click", function() {
+            const answerBlocks = button.closest(".question-block").querySelectorAll(".answer-block");
+            if (currentAnswerIndex < answerBlocks.length) {
+                answerBlocks[currentAnswerIndex].style.display = "block";
+                currentAnswerIndex++;
+            }
+        });
+    });
+
+    // Function to remove the block of question
+    document.querySelectorAll(".remove-question-btn").forEach((button) => {
+        button.addEventListener("click", function() {
+            const questionBlock = button.closest(".question-block");
+            questionBlock.style.display = "none"; // Hide block of questions
+            questionBlock.classList.remove("error");
+        });
+    });
+
+
+    // Form validation to ensure each visible question has at least one correct answer selected
+    const form = document.querySelector("form");
+    form.addEventListener("submit", function(event) {
+        const questions = document.querySelectorAll(".question-block");
+        let valid = true;
+
+        questions.forEach((questionBlock) => {
+            // Check only visible question blocks
+            if (questionBlock.style.display !== "none") {
+                const correctCheckboxes = questionBlock.querySelectorAll(".answer-block input[type='checkbox'][name$='-is_correct']");
+
+                // Check visible answer blocks in this question
+                const visibleCheckboxes = Array.from(correctCheckboxes).filter(checkbox => checkbox.closest(".answer-block").style.display !== "none");
+
+                const isChecked = visibleCheckboxes.some(checkbox => checkbox.checked);
+
+                if (!isChecked) {
+                    valid = false;
+                    questionBlock.classList.add("error");
+                } else {
+                    questionBlock.classList.remove("error");
+                }
+            }
+        });
+
+        if (!valid) {
+            alert("Each visible question must have at least one correct answer.");
+            event.preventDefault(); // Prevent form submission
+        }
+    });
+});
+</script>
+
+
 {% endblock %}
