@@ -1,7 +1,7 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-
+    {% block head %}
     <head>
         <!-- Required meta tags -->
         <meta charset="utf-8">
@@ -23,6 +23,7 @@
          <script src="{% static 'script.js' %}"></script>
         {% block scripts %}
         {% endblock scripts %}
+    {% endblock head %}
 
         <title>Quiz app | {% block title %}{% endblock title %}</title>
     </head>
@@ -35,7 +36,7 @@
 			<li class="logo"><a href="{% url 'quizes:main-view' %}"><div class="logo"></div></a></li>
 
                 {% if user.is_authenticated %}
-                <li><a href="{% url 'quizes:add-quiz-view' %}" class="btn btn-success">Create a New Quiz</a></li>
+                <li><a href="{% url 'quizes:add-quiz-view' %}" class="btn create-button">Create a New Quiz</a></li>
                 {% endif %}
 
 				{% if request.user.is_authenticated %}
