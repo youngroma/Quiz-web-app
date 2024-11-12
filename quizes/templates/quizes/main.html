@@ -6,52 +6,107 @@
 {% endblock scripts %}
 
 {% block title %}
-    home
-{%  endblock title %}
+    Home
+{% endblock title %}
 
 {% block content %}
 
 <!-- Modal -->
 <div class="modal fade" id="quizStartModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Start?</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="modal-body-confirm"></div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
-          {% if user.is_authenticated %}
-                      <button type="button" id="start-button" class="btn btn-success">yes</button>
-              {% else %}
-               <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Log in before start quiz">
-                  <button class="btn btn-success" style="pointer-events: none;" type="button" disabled>Yes</button>
-                </span>
-          {% endif %}
-      </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Start?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modal-body-confirm"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
+                {% if user.is_authenticated %}
+                    <button type="button" id="start-button" class="btn btn-success">Yes</button>
+                {% else %}
+                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Log in before starting the quiz">
+                        <button class="btn btn-success" style="pointer-events: none;" type="button" disabled>Yes</button>
+                    </span>
+                {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<div class="">
-    <h1 class="h1">
-        Quiz List
-    </h1>
+<!-- Page Header -->
+<div class="quiz-list">
+    <h1 data-text="Quiz List">Quiz List</h1>
 </div>
 
 <hr>
 
-{% for object in object_list %}
-<div class="mb-3">
+<!-- Quiz List Grid -->
+<div class="container">
+    <div class="row">
+        {% for object in object_list %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 d-flex flex-column justify-content-between position-relative">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ object.title }}</h5>
+                        <div class="card-text description-block" style="min-height: 60px;">
+                            {{ object.description|default:" " }}
+                        </div>
+                        <ul class="list-unstyled">
+                            <li class="detail-item">
+                                <strong>Difficulty:</strong> {{ object.difficulty|default:"N/A" }}
+                            </li>
+                            <li class="detail-item">
+                                <strong>Time:</strong> {{ object.time|default:"N/A" }} minutes
+                            </li>
+                            <li class="detail-item">
+                                <strong>Score to Pass:</strong> {{ object.required_score|default:"N/A" }}%
+                            </li>
+                        </ul>
+                        <div>
+                    <button type="button" class="btn start-quiz-button modal-button"
+                            data-pk="{{ object.pk }}" data-date="{{ object.date }}"
+                            data-name="{{ object.title }}" data-description="{{ object.description }}"
+                            data-difficulty="{{ object.difficulty }}" data-time="{{ object.time }}"
+                            data-pass="{{ object.required_score }}" data-bs-toggle="modal" data-bs-target="#quizStartModal">
+                        Start Quiz
+                    </button>
+                    </div>
+                    </div>
 
-    <button type="button" class="btn btn-link modal-button" data-pk="{{object.pk}}" data-date="{{object.date}}"
-        data-name="{{object.title}}" data-description="{{object.description}}" data-topic="{{object.topic}}"
-        data-questions="{{object.number_of_questions}}" data-difficulty="{{object.difficulty}}"
-        data-time="{{object.time}}" data-pass="{{object.required_score}}" data-bs-toggle="modal"
-        data-bs-target="#quizStartModal">
-        {{object.title}}
-    </button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 </div>
-    {% endfor %}
-{%  endblock content %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const quizButtons = document.querySelectorAll('.start-quiz-button');
+    const quizCards = document.querySelectorAll('.card');
+
+    // Анимация "подпрыгивания" для кнопок при наведении
+    quizButtons.forEach(button => {
+        button.addEventListener('mouseover', () => {
+            button.classList.add('animated');
+        });
+
+        button.addEventListener('animationend', () => {
+            button.classList.remove('animated');
+        });
+    });
+
+    // Добавление классов анимации для карт при наведении
+    quizCards.forEach(card => {
+        card.addEventListener('mouseover', () => {
+            card.style.transform = 'scale(1.08) rotate(-2deg)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'scale(1) rotate(0)';
+        });
+    });
+});
+
+
+</script>
+
+{% endblock content %}

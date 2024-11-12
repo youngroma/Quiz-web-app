@@ -1,24 +1,106 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 
 {% block content %}
-    <div class="container">
-        <h2>Create a New Quiz</h2>
+    <style>
+    body {
+        background-image: url("/static/images/image-removebg-preview (1).png");
+        background-size: 700px;
+        background-position-y: bottom;
+        background-position-x: left;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+
+    }
+</style>
+    <div class="quiz-container">
+        <h2 class="quiz-title">Create a New Quiz</h2>
 
         <!-- Form for creating the quiz -->
-        <form action="{% url 'quizes:add-quiz-view' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
 
-            <!-- Main form for the quiz -->
-            <div class="form-error">{{ form.non_field_errors }}</div>
-            {% for field in form %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
-                    {{ field }}
-                    <div class="form-error">{{ field.errors }}</div>
-                </div>
-            {% endfor %}
+        <form action="{% url 'quizes:add-quiz-view' %}" method="post" enctype="multipart/form-data" class="quiz-form">
 
-            <button type="submit" class="btn btn-primary">Create Quiz</button>
-        </form>
+    {% csrf_token %}
+
+
+    <div class="form-error">{{ form.non_field_errors }}</div>
+
+
+     <div class="box box1">
+         <div class="evenboxinner"> New Quiz!</div>
+    <div class="form-group quiz-form-group">
+
+
+        <p id="quiz-input">Title: {{ form.title }}</p>
+        <p id="quiz-input" class="quiz-description">Description: {{ form.description }}</p>
+        <p id="quiz-input">Time(in min): {{ form.time }}</p>
+        <p id="quiz-input">score to pass: {{ form.required_score }}</p>
+        <p id="quiz-input">Difficulty: {{ form.difficulty }}</p>
+
+        <div class="form-error">{{ form.title.errors }}</div>
     </div>
+    <button type="submit" class="button create-quiz-button">Create Quiz</button>
+         </div>
+
+
+{#    <div class="form-group quiz-form-group">#}
+{#        <label for="{{ form.description.id_for_label }}">{{ form.description.label }}:</label>#}
+{#        {{ form.description }}#}
+{#        <div class="form-error">{{ form.description.errors }}</div>#}
+{#    </div>#}
+
+
+{#    <div class="form-group quiz-form-group">#}
+{#        <label for="{{ form.time.id_for_label }}">{{ form.time.label }}:</label>#}
+{#        {{ form.time }}#}
+{#        <div class="form-error">{{ form.time.errors }}</div>#}
+{#    </div>#}
+
+
+{#    <div class="form-group quiz-form-group">#}
+{#        <label for="{{ form.required_score.id_for_label }}">{{ form.required_score.label }}:</label>#}
+{#        {{ form.required_score }}#}
+{#        <div class="form-error">{{ form.required_score.errors }}</div>#}
+{#    </div>#}
+
+
+{#    <div class="form-group quiz-form-group">#}
+{#        <label for="{{ form.difficulty.id_for_label }}">{{ form.difficulty.label }}:</label>#}
+{#        {{ form.difficulty }}#}
+{#        <div class="form-error">{{ form.difficulty.errors }}</div>#}
+{#    </div>#}
+
+    </form>
+
+    </div>
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.querySelector('form');
+    const button = form.querySelector('.button');
+
+    button.addEventListener('click', function(event) {
+        // Check for mandatory fields
+        let allFilled = true;
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            if (input.value.trim() === '') {
+                allFilled = false;
+                input.classList.add('input-error');
+            } else {
+                input.classList.remove('input-error');
+            }
+        });
+
+        if (!allFilled) {
+            event.preventDefault();
+            alert("Please fill in all fields!"); // Notification that fields are not filled
+        }
+    });
+});
+</script>
+
 {% endblock %}
