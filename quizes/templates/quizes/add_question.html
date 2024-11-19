@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% load custom_filters %}
 
-{% block content %}
 
+{% block content %}
+<div class="quiz-backg">
 <div class="quiz-details">
     <ul>
         <h2>{{ quiz.title }}</h2>
@@ -10,6 +11,9 @@
         <h2>Time: {{ quiz.time }}</h2>
         <h2>Required Score: {{ quiz.required_score }}</h2>
         <h2>Difficulty: {{ quiz.difficulty }}</h2>
+        <div class="edit-btn">
+        <button class="btn btn-warning" onclick="window.location.href='{% url 'quizes:add-quiz-view' %}'">Edit Quiz</button>
+            </div>
     </ul>
 </div>
 
@@ -22,9 +26,11 @@
         {% for question_form, answer_formset in question_formset|zip_lists:answer_formsets %}
             <div class="form-group question-block" style="display: {% if forloop.counter <= 2 %}block{% else %}none{% endif %};">
                 <h3>Question {{ forloop.counter }}</h3>
+
+                            <button type="button" class="btn btn-danger remove-question-btn">Remove Question</button>
+
                 {{ question_form.as_p }}
 
-                    <button type="button" class="btn btn-danger remove-question-btn">Remove Question</button>
                 {% if question_form.errors %}
                     <div class="text-danger">{{ question_form.errors }}</div>
                 {% endif %}
@@ -34,10 +40,13 @@
                     {% for answer_form in answer_formset %}
                         <div class="form-group answer-block" style="display: {% if forloop.parentloop.counter <= 2 and forloop.counter <= 2 %}block{% else %}none{% endif %};">
                             <h4>Answer {{ forloop.counter }}</h4>
+
                             {{ answer_form.answer_text.label_tag }}
                             {{ answer_form.answer_text }}
                             {{ answer_form.is_correct.label_tag }}
                             {{ answer_form.is_correct }}
+
+                                    <button type="button" class="btn btn-danger remove-answer-btn">Remove Answer</button>
 
                             {% if answer_form.errors %}
                                 <div class="text-danger">{{ answer_form.errors }}</div>
@@ -53,20 +62,18 @@
     <button type="button" id="add-question-btn" class="btn btn-primary">Add Question</button>
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
-
+</div>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const totalQuestions = {{ question_formset.total_form_count }};
     let currentQuestionIndex = 0;
 
-    // Show the first question form when "Add Question" button is clicked
     document.getElementById("add-question-btn").addEventListener("click", function() {
         const questionBlocks = document.querySelectorAll(".question-block");
         if (currentQuestionIndex < totalQuestions) {
             const questionBlock = questionBlocks[currentQuestionIndex];
             questionBlock.style.display = "block";
 
-            // Show the first two answer blocks for this new question
             const answerBlocks = questionBlock.querySelectorAll(".answer-block");
             for (let i = 0; i < 2 && i < answerBlocks.length; i++) {
                 answerBlocks[i].style.display = "block";
@@ -76,7 +83,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Add answer functionality for each question
     document.querySelectorAll(".add-answer-btn").forEach((button) => {
         let currentAnswerIndex = 2;
         button.addEventListener("click", function() {
@@ -88,30 +94,31 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Function to remove the block of question
     document.querySelectorAll(".remove-question-btn").forEach((button) => {
         button.addEventListener("click", function() {
             const questionBlock = button.closest(".question-block");
-            questionBlock.style.display = "none"; // Hide block of questions
+            questionBlock.style.display = "none";
             questionBlock.classList.remove("error");
         });
     });
+    document.querySelectorAll(".remove-answer-btn").forEach((button) => {
+        button.addEventListener("click", function() {
+            const answerBlock = button.closest(".answer-block");
+            answerBlock.style.display = "none"; // Hide answer
+            const inputFields = answerBlock.querySelectorAll("input, textarea");
+            inputFields.forEach((input) => input.value = ""); // Clear input values
+        });
+    });
 
-
-    // Form validation to ensure each visible question has at least one correct answer selected
     const form = document.querySelector("form");
     form.addEventListener("submit", function(event) {
         const questions = document.querySelectorAll(".question-block");
         let valid = true;
 
         questions.forEach((questionBlock) => {
-            // Check only visible question blocks
             if (questionBlock.style.display !== "none") {
                 const correctCheckboxes = questionBlock.querySelectorAll(".answer-block input[type='checkbox'][name$='-is_correct']");
-
-                // Check visible answer blocks in this question
                 const visibleCheckboxes = Array.from(correctCheckboxes).filter(checkbox => checkbox.closest(".answer-block").style.display !== "none");
-
                 const isChecked = visibleCheckboxes.some(checkbox => checkbox.checked);
 
                 if (!isChecked) {
@@ -125,11 +132,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (!valid) {
             alert("Each visible question must have at least one correct answer.");
-            event.preventDefault(); // Prevent form submission
+            event.preventDefault();
         }
     });
 });
 </script>
-
 
 {% endblock %}
