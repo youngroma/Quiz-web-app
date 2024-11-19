@@ -36,7 +36,7 @@
       <div class="modal-body" id="modal-body-confirm">Are you sure that you wanna leave <b>{{ obj.name }} ?</b></div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
-        <button type="button" id="back-button" class="btn btn-success">yes</button>
+        <button type="button" id="back-button" class="btn btn-success" onclick="location.href='{% url 'quizes:main-view' %}'">Yes</button>
       </div>
     </div>
   </div>
