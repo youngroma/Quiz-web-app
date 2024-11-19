@@ -3,6 +3,7 @@ from django.contrib.auth.views import LoginView
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.views import View
 from .forms import QuizForm, AnswerFormSet, QuestionFormSet, QuestionForm
 from results.models import Result
 from .models import Quiz
@@ -22,74 +23,116 @@ class QuizListView(ListView):
     template_name = 'quizes/main.html'
 
 
-class create_quiz_view(DataMixin, CreateView):
+from decimal import Decimal
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+
+class create_quiz_view(DataMixin, View):
     form_class = QuizForm
     template_name = 'quizes/add_quiz.html'
 
-    def get_success_url(self):
-        return reverse_lazy('quizes:add-question-view', kwargs={'pk': self.object.pk})
+    def get(self, request, *args, **kwargs):
+        # Retrieve and deserialize the quiz data from session
+        form_data = request.session.get('quiz_form_data')
+        if form_data:
+            # Convert serialized Decimal values back to Decimal objects
+            form_data = {
+                key: Decimal(value) if isinstance(value, str) and value.replace('.', '', 1).isdigit() else value
+                for key, value in form_data.items()
+            }
+        form = self.form_class(initial=form_data) if form_data else self.form_class()
 
-    def form_valid(self, form):
-        self.object = form.save()
-        return super().form_valid(form)
+        context = {
+            'form': form,
+            'title': "Create Quiz"
+        }
+        return render(request, self.template_name, context)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        c_def = self.get_user_context(title="Add questions")
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            # Save form data to session, converting Decimals to serializable types
+            cleaned_data = form.cleaned_data
+            for key, value in cleaned_data.items():
+                if isinstance(value, Decimal):
+                    cleaned_data[key] = str(value)  # Convert Decimal to string for serialization
 
-        pk = self.kwargs.get('pk')
-        questions = Question.objects.filter(quiz_id=pk)
-        question_formset = QuestionFormSet(prefix='questions', queryset=questions)
+            request.session['quiz_form_data'] = cleaned_data
+            return redirect('quizes:add-question-view', pk='temp')  # Temporary ID for unsaved quiz
 
-        context['question_formset'] = question_formset
-        return {**context, **c_def}
+        context = {
+            'form': form,
+            'title': "Create Quiz"
+        }
+        return render(request, self.template_name, context)
 
 
-class create_question_view(DataMixin, CreateView):
+
+class create_question_view(DataMixin, View):
     template_name = 'quizes/add_question.html'
     success_url = reverse_lazy('quizes:main-view')
 
     def get(self, request, pk):
-        quiz = get_object_or_404(Quiz, pk=pk)
+        if pk == 'temp':  # Temporary case
+            quiz_data = request.session.get('quiz_form_data')
+            if not quiz_data:
+                return redirect('quizes:add-quiz-view')
+            quiz = Quiz(**quiz_data)  # Temporary quiz object for display
+        else:
+            quiz = get_object_or_404(Quiz, pk=pk)
+
         question_formset = QuestionFormSet(queryset=Question.objects.none(), prefix='questions')
         answer_formsets = [AnswerFormSet(queryset=Answer.objects.none(), prefix=f'answers-{i}') for i in range(question_formset.total_form_count())]
 
         context = {
+            'quiz': quiz,
             'question_formset': question_formset,
             'answer_formsets': answer_formsets,
-            'quiz': quiz,
-            'title': "Add questions"
+            'title': "Add Questions"
         }
         return render(request, self.template_name, context)
 
     def post(self, request, pk):
+        if pk == 'temp':
+            quiz_data = request.session.get('quiz_form_data')
+            if not quiz_data:
+                return redirect('quizes:add-quiz-view')
+        else:
+            quiz_data = Quiz.objects.get(pk=pk)
+
         question_formset = QuestionFormSet(request.POST, prefix='questions')
         answer_formsets = [AnswerFormSet(request.POST, prefix=f'answers-{i}') for i in range(question_formset.total_form_count())]
 
         if question_formset.is_valid() and all(af.is_valid() for af in answer_formsets):
-            # save only non-empty forms
+            if pk == 'temp':
+                quiz = Quiz.objects.create(**quiz_data)
+                del request.session['quiz_form_data']
+            else:
+                quiz = Quiz.objects.get(pk=pk)
+
             for question_form, answer_formset in zip(question_formset, answer_formsets):
                 if question_form.cleaned_data and not question_form.cleaned_data.get("DELETE"):
                     question = question_form.save(commit=False)
-                    question.quiz_id = pk
+                    question.quiz = quiz
                     question.save()
 
-                    #save non-empty forms
                     for answer_form in answer_formset:
                         if answer_form.cleaned_data and not answer_form.cleaned_data.get("DELETE"):
                             answer = answer_form.save(commit=False)
-                            answer.question = question  # link the answer to the question
+                            answer.question = question
                             answer.save()
 
             return redirect(self.success_url)
 
-        # If the forms are invalid, we return them in the template
+        quiz = Quiz(**quiz_data) if pk == 'temp' else Quiz.objects.get(pk=pk)
         context = {
+            'quiz': quiz,
             'question_formset': question_formset,
             'answer_formsets': answer_formsets,
-            'title': "Add questions"
+            'title': "Add Questions"
         }
         return render(request, self.template_name, context)
+
 
 
 
