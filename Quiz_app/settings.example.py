@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='your-secret-key')
+SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG', cast=bool, default=True)
 
@@ -12,11 +12,11 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='your_db_name'), # your database name
-        'USER': config('DB_USER', default='your_db_user'), # user's name
-        'PASSWORD': config('DB_PASSWORD', default='your_password'), # database password
-        'HOST': config('DB_HOST', default='localhost'),  # host
-        'PORT': config('DB_PORT', default='5432'),  #port
+        'NAME': config('DB_NAME'), # your database name
+        'USER': config('DB_USER'), # user's name
+        'PASSWORD': config('DB_PASSWORD'), # database password
+        'HOST': config('DB_HOST'),  # host
+        'PORT': config('DB_PORT'),  #port
     }
 }
 
