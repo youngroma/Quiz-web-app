@@ -12,7 +12,7 @@ class Question(models.Model):
         ('yes_no', 'Yes or No'),
     ]
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions")
-    question_text = models.TextField(help_text="Text of the question", max_length=255, null=True, blank=True)
+    question_text = models.TextField(max_length=64, null=True, blank=True)
     question_type = models.CharField(
         max_length=10,
         choices=QUESTION_TYPE_CHOICES,
