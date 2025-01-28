@@ -12,27 +12,35 @@
 {% block content %}
 
 <!-- Modal -->
+
 <div class="modal fade" id="quizStartModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Start?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="modal-body-confirm"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
-                {% if user.is_authenticated %}
-                    <button type="button" id="start-button" class="btn btn-success">Yes</button>
-                {% else %}
-                    <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Log in before starting the quiz">
-                        <button class="btn btn-success" style="pointer-events: none;" type="button" disabled>Yes</button>
-                    </span>
-                {% endif %}
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal-content">
+            <!-- Фон: изображение -->
+            <img src="static/images/imgformodalbtnstart.png" alt="Background" class="custom-modal-image">
+
+            <div class="custom-modal-overlay">
+                <h5 class="modal-title">Start?</h5>
+                <div id="modal-body-confirm">
+                    Are you sure you want to start the quiz?
+                </div>
+
+                <!-- Кнопки действия -->
+                <div class="custom-modal-buttons">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
+                    {% if user.is_authenticated %}
+                        <button type="button" id="start-button" class="btn btn-success">Yes</button>
+                    {% else %}
+                        <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="Log in before starting the quiz">
+                            <button class="btn btn-success" style="pointer-events: none;" type="button" disabled>Yes</button>
+                        </span>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Page Header -->
 <div class="quiz-list">
@@ -41,7 +49,7 @@
 
 <hr>
 
-<!-- Quiz List Grid -->
+{#<!-- Quiz List Grid -->#}
 <div class="container">
     <div class="row">
         {% for object in object_list %}
@@ -105,7 +113,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
-
 
 </script>
 
