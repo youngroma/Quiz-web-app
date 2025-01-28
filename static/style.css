@@ -97,39 +97,36 @@ ul.mainmenu li {
 
 
 
-/* Стиль заголовка страницы */
+
 .quiz-list h1 {
     font-size: 3rem;
-    color: cornflowerblue; /* Верхний слой */
+    color: cornflowerblue;
     text-align: center;
     text-shadow:
-        3px 3px 0 black,  /* Красный нижний слой */
-        6px 6px 0 #42a5f5;  /* Дополнительный слой для эффекта глубины */
+        3px 3px 0 black,
+        6px 6px 0 #42a5f5;
 }
 
 
 
-/* Карточки квизов */
 .card {
     text-align: center;
     background: #ffffff;
-    border: 5px solid #ffeb3b;
-    box-shadow: 5px 5px 0px #212121, -5px -5px 0px #fbc02d;
+    border: 5px solid #773377;
+    box-shadow: 5px 5px 0px #553377, -5px -5px 0px #AA2277 ;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-radius: 10px;
 }
 
-/* Эффект комиксов при наведении */
 .card:hover {
     transform: scale(1.05) rotate(-2deg);
-    box-shadow: 7px 7px 0px #212121, -7px -7px 0px #fbc02d;
+    box-shadow: 7px 7px 0px #212121, -7px -7px 0px #AA2277;
 }
 
-/* Стиль заголовка и текста карточек */
 .card-title {
     color: #e91e63;
     font-size: 1.5rem;
-    text-shadow: 1px 1px 0px #ffeb3b;
+    text-shadow: 1px 1px 0px #553377;
     margin-bottom: 1rem;
 }
 
@@ -138,9 +135,8 @@ ul.mainmenu li {
     color: #757575;
 }
 
-/* Кнопка старта квиза */
 .start-quiz-button {
-    background-color: #42a5f5;
+    background-color: #556699;
     border: none;
     color: #ffffff;
     font-weight: bold;
@@ -150,22 +146,20 @@ ul.mainmenu li {
 }
 
 .start-quiz-button:hover {
-    background-color: #1e88e5;
+    background-color: #884477;
     box-shadow: 5px 5px 0px #212121;
     transform: scale(1.05) rotate(-1deg);
 }
 
-/* Стили для второго ряда */
 .card:nth-child(4), .card:nth-child(5), .card:nth-child(6) {
     background: linear-gradient(135deg, #ff8f00, #fbc02d);
     border: 5px solid #212121;
     box-shadow: 5px 5px 0px #37474f, -5px -5px 0px #212121;
 }
 
-/* Модальное окно */
 .modal-content {
     background-color: #ffffff;
-    border: 5px solid #ffeb3b;
+    /*border: 5px solid black;*/
     border-radius: 10px;
     box-shadow: 5px 5px 0px #212121;
     font-size: 1.2rem;
@@ -275,5 +269,4 @@ ul.mainmenu li {
   border:1px solid #222;
   box-shadow:3px 3px 0 #222;
 }
-
 
