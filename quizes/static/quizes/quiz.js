@@ -8,7 +8,7 @@ const timerBox = document.getElementById('timer-box')
 
 let questions = [];
 let currentQuestionIndex = 0;
-let userAnswers = {}; // Для хранения ответов пользователя
+let userAnswers = {};
 
 
 const activateTimer = (time) => {
@@ -70,29 +70,75 @@ $.ajax({
 });
 
 const displayQuestion = (index) => {
-    quizQuestionBox.innerHTML = ''; // Очистка контейнера
+    quizQuestionBox.innerHTML = '';
+
+    if (!questions[index] || !Object.keys(questions[index]).length) {
+        console.error("No question data available for index:", index);
+        quizQuestionBox.innerHTML = `<p>Error: Question not found.</p>`;
+        return;
+    }
+
     const questionObj = questions[index];
     const questionText = Object.keys(questionObj)[0];
     const answers = questionObj[questionText];
 
-    quizQuestionBox.innerHTML += `
+    if (!Array.isArray(answers) || answers.length === 0) {
+        console.error(`No answers found for question: "${questionText}"`);
+        quizQuestionBox.innerHTML = `
+            <div>
+                <h5>${questionText}</h5>
+                <p>Error: No answers available.</p>
+            </div>`;
+        return;
+    }
+
+    console.log("Rendering question:", questionText);
+    console.log("Answers:", answers);
+
+
+    quizQuestionBox.innerHTML = `
         <div class="mb-3">
             <h5>${questionText}</h5>
         </div>
+        <div class="answers-container">
+        ${answers.map(answer => `
+            <div class="answer-block">
+                <input type="radio" class="ans" id="${encodeURIComponent(questionText)}-${encodeURIComponent(answer)}" name="${encodeURIComponent(questionText)}" value="${answer}">
+                <label for="${encodeURIComponent(questionText)}-${encodeURIComponent(answer)}" class="answer-label">${answer}</label>
+            </div>`).join('')}
+        </div>
     `;
 
-    answers.forEach((answer) => {
-        const isChecked = userAnswers[questionText] === answer ? 'checked' : '';
-        quizQuestionBox.innerHTML += `
-            <div>
-                <input type="radio" class="ans" id="${questionText}-${answer}" name="${questionText}" value="${answer}" ${isChecked}>
-                <label for="${questionText}-${answer}">${answer}</label>
-            </div>
-        `;
-    });
 
-    updateNavigationButtons();
-};
+    console.log("Generated HTML:", quizQuestionBox.innerHTML);
+
+    answers.forEach((answer) => {
+    const radioInput = document.getElementById(`${encodeURIComponent(questionText)}-${encodeURIComponent(answer)}`);
+    const answerBlock = radioInput?.parentElement;
+
+    if (!radioInput || !answerBlock) {
+        console.error("Not found elements for:", answer);
+        return;
+    }
+
+    if (userAnswers[questionText] === answer) {
+        answerBlock.classList.add('selected');
+        radioInput.checked = true;
+    }
+
+    answerBlock.addEventListener('click', () => {
+        console.log(`Selected answer: ${answer}`);
+        document
+            .querySelectorAll(`input[name="${questionText}"]`)
+            .forEach((input) => input.parentElement.classList.remove('selected'));
+
+        answerBlock.classList.add('selected');
+        radioInput.checked = true;
+
+        userAnswers[questionText] = answer;
+        console.log("Updated user's answers:", userAnswers);
+    });
+});
 
 const updateNavigationButtons = () => {
     prevButton.disabled = currentQuestionIndex === 0;
@@ -150,4 +196,13 @@ submitButton.addEventListener('click', (e) => {
             console.error('Error submitting answers:', error);
         }
     });
+});}
+
+const questionBlocks = document.querySelectorAll('.question-block');
+const answerBlocks = document.querySelectorAll('.answer-block');
+
+questionBlocks.forEach(block => {
+    if (block.style.display === 'none') {
+        block.style.display = 'block';
+    }
 });
