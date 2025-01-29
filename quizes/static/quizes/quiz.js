@@ -44,7 +44,7 @@ const activateTimer = (time) => {
             setTimeout(()=>{
                 clearInterval(timer)
                 alert('time over')
-                sendData()
+                submitButton.click();
             }, 500)
 
         }
@@ -63,6 +63,7 @@ $.ajax({
         questions = response.data;
         displayQuestion(currentQuestionIndex);
         activateTimer(response.time);
+        updateNavigationButtons();
     },
     error: function (error) {
         console.error('Error loading questions:', error);
@@ -92,53 +93,43 @@ const displayQuestion = (index) => {
         return;
     }
 
-    console.log("Rendering question:", questionText);
-    console.log("Answers:", answers);
-
-
     quizQuestionBox.innerHTML = `
         <div class="mb-3">
             <h5>${questionText}</h5>
         </div>
         <div class="answers-container">
-        ${answers.map(answer => `
-            <div class="answer-block">
-                <input type="radio" class="ans" id="${encodeURIComponent(questionText)}-${encodeURIComponent(answer)}" name="${encodeURIComponent(questionText)}" value="${answer}">
-                <label for="${encodeURIComponent(questionText)}-${encodeURIComponent(answer)}" class="answer-label">${answer}</label>
-            </div>`).join('')}
+            ${answers.map(answer => `
+                <div class="answer-block">
+                    <input type="radio" class="ans" id="${questionText}-${answer}" name="${questionText}" value="${answer}" ${userAnswers[questionText] === answer ? 'checked' : ''}>
+                    <label for="${questionText}-${answer}" class="answer-label">${answer}</label>
+                </div>
+            `).join('')}
         </div>
     `;
 
+    quizQuestionBox.addEventListener('click', (event) => {
+        const target = event.target;
 
-    console.log("Generated HTML:", quizQuestionBox.innerHTML);
+        if (target && target.tagName === 'LABEL') {
+            const radioInput = target.previousElementSibling;
 
-    answers.forEach((answer) => {
-    const radioInput = document.getElementById(`${encodeURIComponent(questionText)}-${encodeURIComponent(answer)}`);
-    const answerBlock = radioInput?.parentElement;
+            if (!radioInput) return;
 
-    if (!radioInput || !answerBlock) {
-        console.error("Not found elements for:", answer);
-        return;
-    }
+            userAnswers[questionText] = radioInput.value;
+            console.log("Updated user's answers:", userAnswers);
 
-    if (userAnswers[questionText] === answer) {
-        answerBlock.classList.add('selected');
-        radioInput.checked = true;
-    }
+            [...document.querySelectorAll(`input[name="${questionText}"]`)].forEach((input) => {
+                input.parentElement.classList.remove('selected');
+            });
 
-    answerBlock.addEventListener('click', () => {
-        console.log(`Selected answer: ${answer}`);
-        document
-            .querySelectorAll(`input[name="${questionText}"]`)
-            .forEach((input) => input.parentElement.classList.remove('selected'));
-
-        answerBlock.classList.add('selected');
-        radioInput.checked = true;
-
-        userAnswers[questionText] = answer;
-        console.log("Updated user's answers:", userAnswers);
+            target.parentElement.classList.add('selected');
+        }
     });
-});
+
+    updateNavigationButtons();
+};
+
+
 
 const updateNavigationButtons = () => {
     prevButton.disabled = currentQuestionIndex === 0;
@@ -163,6 +154,7 @@ prevButton.addEventListener('click', (e) => {
         currentQuestionIndex--;
         displayQuestion(currentQuestionIndex);
     }
+    updateNavigationButtons();
 });
 
 nextButton.addEventListener('click', (e) => {
@@ -172,6 +164,7 @@ nextButton.addEventListener('click', (e) => {
         currentQuestionIndex++;
         displayQuestion(currentQuestionIndex);
     }
+    updateNavigationButtons();
 });
 
 submitButton.addEventListener('click', (e) => {
@@ -196,7 +189,7 @@ submitButton.addEventListener('click', (e) => {
             console.error('Error submitting answers:', error);
         }
     });
-});}
+});
 
 const questionBlocks = document.querySelectorAll('.question-block');
 const answerBlocks = document.querySelectorAll('.answer-block');
