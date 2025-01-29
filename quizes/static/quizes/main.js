@@ -8,7 +8,7 @@ const url = "quiz/"
 
 modalButtons.forEach(Button => Button.addEventListener('click', ()=> {
     const pk = Button.getAttribute('data-pk')
-    const date = Button.getAttribute('data-date')
+    const user = Button.getAttribute('data-user')
     const name = Button.getAttribute('data-name')
     const description = Button.getAttribute('data-description')
     const topic = Button.getAttribute('data-topic')
@@ -25,12 +25,11 @@ modalButtons.forEach(Button => Button.addEventListener('click', ()=> {
         <div class="text-muted">
             <p>${description}</p>
             <ul>
-                <li>Created at: <b>${date}</b></li>
-                <li>Difficulty: <b>${difficulty}</b></li>
-                <li>Topic: <b>${topic}</b></li>
-                <li>Number of questions: <b>${numQuestions}</b></li>
-                <li>Time available: <b>${time} minutes</b></li>
-                <li>Score needed to pass: <b>${scoreToPass} %</b></li>
+                <p>Autor: <b>${user}</b></p>
+                <p>Difficulty: <b>${difficulty}</b></p>
+                <p>Number of questions: <b>${numQuestions}</b></p>
+                <p>Time available: <b>${time} minutes</b></p>
+                <p>Score needed to pass: <b>${scoreToPass} %</b></p>
             </ul>
         </div>
         `
