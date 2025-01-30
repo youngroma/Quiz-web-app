@@ -39,19 +39,25 @@
                 <div class="answers-container">
                     {% for answer_form in answer_formset %}
                         <div class="form-group answer-block" style="display: {% if forloop.parentloop.counter <= 2 and forloop.counter <= 2 %}block{% else %}none{% endif %};">
-                            <h4>Answer {{ forloop.counter }}</h4>
+                        <h4>Answer {{ forloop.counter }}</h4>
 
-                            {{ answer_form.answer_text.label_tag }}
-                            {{ answer_form.answer_text }}
-                            {{ answer_form.is_correct.label_tag }}
-                            {{ answer_form.is_correct }}
+                        {{ answer_form.answer_text.label_tag }}
+                        {{ answer_form.answer_text }}
 
-                                    <button type="button" class="btn btn-danger remove-answer-btn">Remove Answer</button>
+                        <input type="checkbox" id="is_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                               name="{{ answer_form.is_correct.html_name }}"
+                               {{ answer_form.is_correct.data }}>
 
-                            {% if answer_form.errors %}
-                                <div class="text-danger">{{ answer_form.errors }}</div>
-                            {% endif %}
-                        </div>
+                        <label for="is_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">Correct Answer</label>
+
+
+                        <button type="button" class="btn btn-danger remove-answer-btn">Remove Answer</button>
+
+                        {% if answer_form.errors %}
+                            <div class="text-danger">{{ answer_form.errors }}</div>
+                        {% endif %}
+                    </div>
+
                     {% endfor %}
                 </div>
                 <button type="button" class="btn btn-primary add-answer-btn">Add Answer</button>
