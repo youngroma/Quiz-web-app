@@ -11,21 +11,20 @@ html, body {
 
 }
 
-.logo {
-	background: url('images/logo.png') no-repeat 10px 5px;
-	width: 70px;
-	height: 60px;
+.header {
+    background-color: darkred;
+    padding: 0 30px;
+    height: 80px;
+    display: flex;
+    align-items: center;
 }
 
-/*.row {*/
-/*    display: flex;*/
-/*    justify-content: center;
-/*    align-items: center;
-/*    height: 100vh;*/
-/*}*/
-
-.header {
-	background-color: darkred;
+.logo {
+    background: url('images/minilogo.png') no-repeat center;
+    background-size: contain;
+    width: 70px;
+    height: 60px;
+    list-style: none;
 }
 
 
