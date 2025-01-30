@@ -309,3 +309,210 @@ ul.mainmenu li {
     gap: 10px;
 }
 
+/*Add questions page */
+
+form input[type="text"],
+form textarea {
+    width: 100%; /* Occupy full width of the container */
+    max-width: 600px; /* Limit maximum width */
+    height: 40px; /* Uniform height */
+    padding: 8px;
+    font-size: 16px;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    border: 2px solid #333;
+    border-radius: 5px;
+    box-shadow: 3px 3px 0px #ccc;
+    background-color: #fff;
+    color: #333;
+    transition: 0.3s;
+}
+
+form input[type="text"]:focus,
+form textarea:focus {
+    outline: none;
+    border-color: #ff4500;
+    background-color: #fffcf0;
+    box-shadow: 4px 4px 0px #333;
+}
+
+/* Adjust textarea height for answers */
+form textarea {
+    resize: none; /* Prevent resizing */
+    height: 60px; /* Fixed height for textarea */
+}
+
+.question-form {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 3px solid #000;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 5px 5px 0px #333;
+}
+
+/* Align labels and inputs neatly */
+.form-group label {
+    display: block; /* Ensure labels are on top of inputs */
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #006400;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+
+h1, h2, h3, h4 {
+    text-align: center;
+    color: darkcyan;
+    text-shadow: 2px 2px black;
+}
+
+.answer-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    position: relative;
+}
+
+.answer-block h4 {
+    color: #006400;
+    margin: 0 0 10px 0;
+}
+
+
+
+/* Buttons */
+button {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-size: 1rem;
+    padding: 10px 15px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    background-color: #ff4500;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    box-shadow: 3px 3px 0px #333;
+}
+
+button:hover {
+    background-color: #ff6347;
+    transform: scale(1.05);
+}
+
+/* Validation Highlight */
+.error {
+    border: 2px solid red !important;
+    background-color: #ffe6e6;
+}
+
+/* Styling for the question header with Remove Question button */
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    background-color: #f8f8f8;
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #ccc;
+}
+
+.question-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+/* Remove Question button in the top-right corner */
+.remove-question-btn {
+    background-color: #ff4500;
+    color: #fff;
+    float: right;
+    border: none;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-bottom: 20px;
+}
+
+.remove-question-btn:hover {
+    background-color: #d93600;
+}
+
+/* Styling for answers with a row layout */
+.answer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.answer-content {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+/* Remove Answer button to the right of each answer */
+.remove-answer-btn {
+    background-color: #ff4500;
+    color: #fff;
+    float: right;
+    border: none;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.remove-answer-btn:hover {
+    background-color: #d93600;
+}
+
+
+
+.answer-block input[type="checkbox"] {
+    display: none;
+}
+
+.answer-block label[for*="is_correct"] {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: bold;
+    position: relative;
+    padding-left: 30px;
+}
+
+.answer-block label[for*="is_correct"]::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border: 2px solid #28a745;
+    border-radius: 4px;
+    position: absolute;
+    left: 0;
+    top: 2px;
+    background-color: white;
+}
+
+.answer-block input[type="checkbox"]:checked + label[for*="is_correct"]::before {
+    background-color: #28a745;
+    border-color: #218838;
+    content: "✔";
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    line-height: 20px;
+    font-weight: bold;
+}
