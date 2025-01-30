@@ -18,7 +18,7 @@
 </div>
 
 <h1>Add Questions and Answers</h1>
-<form method="post">
+<form method="post" class="question-form">
     {% csrf_token %}
     {{ question_formset.management_form }}
 
