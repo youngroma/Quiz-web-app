@@ -164,13 +164,12 @@ ul.mainmenu li {
     font-size: 1.2rem;
 }
 
-/* Заголовок модального окна */
 .modal-title {
     color: #e91e63;
     text-shadow: 2px 2px 0px #ffeb3b;
 }
 
-/* Кнопки модального окна */
+/* The Mode Window buttons */
 .modal-footer .btn-danger, .modal-footer .btn-success {
     border: none;
     font-weight: bold;
@@ -187,7 +186,6 @@ ul.mainmenu li {
     animation: bounce 0.4s ease;
 }
 
-/* Ключевые кадры для bounce-анимации */
 @keyframes bounce {
     0% { transform: translateY(0); }
     25% { transform: translateY(-5px); }
@@ -553,3 +551,93 @@ button:hover {
 .quiz-details button:hover {
     background-color: darkslategray;
 }
+
+
+/*      Styles for Quiz page        */
+
+
+.quiz-question-box {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    padding: 40px 50px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 2000px;
+    margin: 20px auto;
+}
+
+.quiz-question-box h5 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 20px;
+    padding: 40px;
+    text-align: center;
+    background-color: whitesmoke;
+    border: 4px solid #000;
+    border-radius: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    letter-spacing: 2px;
+}
+
+.quiz-answers-container {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    justify-content: center;
+}
+
+.quiz-answer-block {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    height: 300px;
+    background-color: #fff;
+    border-radius: 8px;
+    border: 2px solid #000;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+
+.quiz-answer-block:hover {
+    background-color: #f4faff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+.ans {
+    position: absolute;
+    opacity: 0;
+}
+
+.answer-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #444;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.3s ease;
+}
+
+.answer-label:hover {
+    color: #007bff;
+}
+
+input[type="radio"]:checked + .answer-label {
+    font-weight: bold;
+    color: #0056b3;
+}
+
