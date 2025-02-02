@@ -85,7 +85,7 @@ const displayQuestion = (index) => {
 
     if (!Array.isArray(answers) || answers.length === 0) {
         console.error(`No answers found for question: "${questionText}"`);
-        quizQuestionBox.innerHTML = `
+        quizQuestionBox.innerHTML = ` 
             <div>
                 <h5>${questionText}</h5>
                 <p>Error: No answers available.</p>
@@ -94,37 +94,34 @@ const displayQuestion = (index) => {
     }
 
     quizQuestionBox.innerHTML = `
-        <div class="mb-3">
-            <h5>${questionText}</h5>
-        </div>
-        <div class="answers-container">
-            ${answers.map(answer => `
-                <div class="answer-block">
-                    <input type="radio" class="ans" id="${questionText}-${answer}" name="${questionText}" value="${answer}" ${userAnswers[questionText] === answer ? 'checked' : ''}>
-                    <label for="${questionText}-${answer}" class="answer-label">${answer}</label>
-                </div>
-            `).join('')}
+        <div class="quiz-question-box">
+            <div class="mb-3">
+                <h5>${questionText}</h5>
+            </div>
+            <div class="quiz-answers-container">
+                ${answers.map(answer => `
+                    <div class="quiz-answer-block">
+                        <input type="radio" class="ans" id="${questionText}-${answer}" name="${questionText}" value="${answer}" ${userAnswers[questionText] === answer ? 'checked' : ''}>
+                        <label for="${questionText}-${answer}" class="answer-label">${answer}</label>
+                    </div>
+                `).join('')}
+            </div>
         </div>
     `;
 
-    quizQuestionBox.addEventListener('click', (event) => {
-        const target = event.target;
-
-        if (target && target.tagName === 'LABEL') {
-            const radioInput = target.previousElementSibling;
-
-            if (!radioInput) return;
-
-            userAnswers[questionText] = radioInput.value;
-            console.log("Updated user's answers:", userAnswers);
-
-            [...document.querySelectorAll(`input[name="${questionText}"]`)].forEach((input) => {
-                input.parentElement.classList.remove('selected');
-            });
-
-            target.parentElement.classList.add('selected');
-        }
+    // Remove 'selected' classes from previous questions
+    [...document.querySelectorAll('.answer-block')].forEach(block => {
+        block.classList.remove('selected');
     });
+
+    // Resets the selected answers for the current question
+    if (userAnswers[questionText]) {
+        const selectedAnswer = [...document.querySelectorAll(`input[name="${questionText}"]`)]
+            .find(input => input.value === userAnswers[questionText]);
+        if (selectedAnswer) {
+            selectedAnswer.parentElement.classList.add('selected');
+        }
+    }
 
     updateNavigationButtons();
 };
